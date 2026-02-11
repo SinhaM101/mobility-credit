@@ -1,0 +1,193 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+
+\title{\textbf{Income Inequality and Voting Patterns in New York City}\\[0.5em]\large A Big Data Analysis}
+\author{Monish Sinha\\Big Data, University College Dublin}
+\date{February 11, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This project analyzes the relationship between income inequality and voting patterns across New York City's five boroughs. By combining American Community Survey (ACS) economic data with county-level presidential election results, we investigate how income metrics correlate with political preferences. Our analysis reveals that income inequality (measured by the Mean/Median ratio) shows the strongest correlation (+0.778) with Democratic voting margins, providing insights into the socioeconomic factors driving urban political behavior.
+\end{abstract}
+
+\textbf{Keywords:} income inequality, voting patterns, New York City, big data, ACS, presidential elections
+
+\section{Introduction}
+
+This project analyzes income variation and its relationship to voting patterns across New York City using multiple datasets from the American Community Survey (ACS) and county-level presidential election data. The ACS datasets contain 590 total data entries across four structured files (Demographic, Economic, Social, and Housing), representing approximately 19.8 million residents of New York State. The presidential voting dataset contains 94,019 records spanning elections from 2000 to 2024 across all U.S. counties, which we filter down to 125 records for NYC's five boroughs.
+
+This project qualifies as big data based on the following characteristics:
+
+\textbf{Volume:} The combined datasets contain over 94,000 records in the voting data alone, with the potential to scale to full ACS microdata (millions of individual records, GB-scale). The prototype processes data representing 19.8 million people and 2.78 million NYC voters. Processing was executed on a macOS system with Python 3.9.6 and Pandas 2.3.3, with total execution times of approximately 0.02 seconds for income analysis and 0.12 seconds for voting data filtering.
+
+\textbf{Variety:} We integrate five distinct structured datasets with different schemas and purposes: (1) ACS Demographic data (population, age, race), (2) ACS Economic data (income, employment, poverty), (3) ACS Social data (education, households), (4) ACS Housing data (home values, rent), and (5) County Presidential Election data (votes by party, 2000--2024). Each dataset contributes unique dimensions to our analysis of income--voting relationships.
+
+\textbf{Value:} The objective of this project is to determine how income inequality correlates with voting behavior in New York City. Understanding these patterns provides value for policymakers analyzing urban political dynamics, researchers studying socioeconomic determinants of voting, and urban planners examining the relationship between economic conditions and civic engagement. Our analysis reveals that boroughs with higher income inequality tend to vote more Democratic, with a correlation coefficient of +0.778.
+
+\section{Traditional Solution}
+
+Before developing a big data pipeline, we built a single-threaded Python prototype to validate our processing logic and establish performance baselines. The prototype decomposes the analysis into six key steps, each implemented with standard Python and Pandas operations.
+
+\subsection{Step 1: Load All Datasets}
+
+The first step loads the five CSV datasets into memory using Pandas DataFrames.
+
+\begin{verbatim}
+demographic_df = pd.read_csv("NYC Demographic ACS.csv")
+economic_df = pd.read_csv("NYC Economic ACS.csv")
+social_df = pd.read_csv("NYC Social ACS.csv")
+housing_df = pd.read_csv("NYC Housing ACS.csv")
+voting_df = pd.read_csv("countypres_2000-2024.csv")
+nyc_voting = voting_df[voting_df['county_name'].isin(
+    ['NEW YORK', 'KINGS', 'QUEENS', 'BRONX', 'RICHMOND'])]
+\end{verbatim}
+
+\textbf{Execution Results:}
+\begin{itemize}
+    \item Demographic: 113 rows, 5 columns
+    \item Economic: 145 rows, 5 columns
+    \item Social: 172 rows, 5 columns
+    \item Housing: 160 rows, 5 columns
+    \item Voting (filtered to NYC): 125 rows, 12 columns
+\end{itemize}
+\textbf{Execution Time:} 0.0069 seconds | \textbf{Memory:} 224.16 KB (ACS data)
+
+\subsection{Step 2: Clean and Standardize Data}
+
+Column names are standardized across datasets, and numeric values are cleaned by removing formatting characters (commas, dollar signs, percent signs).
+
+\begin{verbatim}
+def clean_columns(df):
+    df.columns = ['Label', 'Estimate', 'Margin_of_Error', 
+                  'Percent', 'Percent_MOE']
+    return df
+
+def clean_numeric(value):
+    if pd.isna(value): return None
+    value = str(value).replace(',', '').replace('$', '')
+    return float(value)
+\end{verbatim}
+
+\textbf{Execution Time:} 0.0001 seconds
+
+\subsection{Step 3: Extract Income-Related Data}
+
+Income-related rows are extracted from the Economic dataset using keyword filtering.
+
+\begin{verbatim}
+income_keywords = ['income', 'earnings', 'median', 'mean']
+mask = df['Label'].str.contains('|'.join(keywords), na=False)
+income_data = economic_df[mask].copy()
+\end{verbatim}
+
+\textbf{Result:} Extracted 23 income-related rows from 145 total rows.\\
+\textbf{Execution Time:} 0.0020 seconds
+
+\subsection{Step 4: Process Voting Data by Borough}
+
+Vote shares are calculated for each NYC borough from the 2024 presidential election.
+
+\begin{verbatim}
+voting_2024 = nyc_voting[nyc_voting['year'] == 2024]
+for county in nyc_counties:
+    dem_votes = county_votes[county_votes['party'] == 
+        'DEMOCRAT']['candidatevotes'].sum()
+    dem_margin = (dem_votes - rep_votes) / total * 100
+\end{verbatim}
+
+\textbf{Execution Time:} 0.0041 seconds
+
+\subsection{Step 5: Merge Income and Voting Data}
+
+Borough-level income data is merged with voting results for correlation analysis.
+
+\begin{verbatim}
+borough_income = pd.DataFrame({
+    'county_name': ['NEW YORK', 'KINGS', 'QUEENS', ...],
+    'median_household_income': [99660, 67060, ...],
+    'mean_household_income': [167826, 102847, ...]})
+borough_income['inequality'] = mean_income / median_income
+merged_df = pd.merge(borough_income, vote_df, on='county_name')
+\end{verbatim}
+
+\textbf{Result:} Merged dataset with 5 rows and 16 columns.\\
+\textbf{Execution Time:} 0.0024 seconds
+
+\subsection{Step 6: Correlation Analysis and Visualization}
+
+Correlations are computed between economic indicators and Democratic vote margins.
+
+\begin{verbatim}
+def simple_correlation(x, y):
+    mean_x, mean_y = sum(x)/len(x), sum(y)/len(y)
+    num = sum((xi-mean_x)*(yi-mean_y) for xi,yi in zip(x,y))
+    return num / denominator
+
+corr = simple_correlation(inequality_list, dem_margin_list)
+\end{verbatim}
+
+\textbf{Execution Time:} 0.0016 seconds
+
+\subsection{Execution Summary}
+
+\begin{table}[htbp]
+\centering
+\caption{Prototype Execution Metrics}
+\begin{tabular}{lrr}
+\hline
+Step & Description & Time (s) \\
+\hline
+1 & Load datasets & 0.0069 \\
+2 & Clean and standardize & 0.0001 \\
+3 & Extract income data & 0.0020 \\
+4 & Process voting data & 0.0041 \\
+5 & Merge datasets & 0.0024 \\
+6 & Correlation analysis & 0.0016 \\
+\hline
+\textbf{Total} & & \textbf{0.0171} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Key Findings: Income vs Voting in NYC (2024)}
+\begin{tabular}{lrrrr}
+\hline
+Borough & Median Income & Inequality & Poverty & Dem Margin \\
+\hline
+Manhattan & \$99,660 & 1.68 & 14.1\% & +64.2\% \\
+Staten Island & \$91,160 & 1.29 & 10.2\% & -29.5\% \\
+Queens & \$78,796 & 1.27 & 11.2\% & +24.2\% \\
+Brooklyn & \$67,060 & 1.53 & 18.9\% & +43.3\% \\
+Bronx & \$43,726 & 1.44 & 27.3\% & +45.1\% \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Correlation Analysis Results}
+\begin{tabular}{lr}
+\hline
+Economic Indicator & Correlation with Dem Margin \\
+\hline
+Income Inequality Ratio & +0.778 \\
+Poverty Rate & +0.516 \\
+Education (Bachelor's+) & +0.346 \\
+Median Income & -0.227 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Memory Usage:} Total memory consumption was 224.16 KB for ACS data and 60.09 KB for voting data, demonstrating the lightweight nature of the prototype suitable for scaling to larger datasets.
+
+\textbf{System Specifications:} Python 3.9.6, Pandas 2.3.3, macOS, single-threaded execution.
+
+\end{document}
