@@ -1,0 +1,24 @@
+Label,Estimate,Margin_of_Error,Percent,Percent_MOE,Estimate_Clean,Percent_Clean,Label_Clean
+        Other means,"257,548","±4,978",2.8%,±0.1,257548.0,2.8,Other means
+        Mean travel time to work (minutes),32.6,±0.1,(X),(X),32.6,,Mean travel time to work (minutes)
+INCOME AND BENEFITS (IN 2024 INFLATION-ADJUSTED DOLLARS),,,,,,,INCOME AND BENEFITS (IN 2024 INFLATION-ADJUSTED DOLLARS)
+        Median household income (dollars),"85,974",±402,(X),(X),85974.0,,Median household income (dollars)
+        Mean household income (dollars),"128,247",±582,(X),(X),128247.0,,Mean household income (dollars)
+        With earnings,"5,916,695","±14,164",76.6%,±0.1,5916695.0,76.6,With earnings
+            Mean earnings (dollars),"134,564",±633,(X),(X),134564.0,,Mean earnings (dollars)
+            Mean Social Security income (dollars),"24,021",±71,(X),(X),24021.0,,Mean Social Security income (dollars)
+        With retirement income,"1,912,438","±11,888",24.8%,±0.1,1912438.0,24.8,With retirement income
+            Mean retirement income (dollars),"35,144",±353,(X),(X),35144.0,,Mean retirement income (dollars)
+        With Supplemental Security Income,"465,828","±5,151",6.0%,±0.1,465828.0,6.0,With Supplemental Security Income
+            Mean Supplemental Security Income (dollars),"11,015",±83,(X),(X),11015.0,,Mean Supplemental Security Income (dollars)
+        With cash public assistance income,"324,466","±4,564",4.2%,±0.1,324466.0,4.2,With cash public assistance income
+            Mean cash public assistance income (dollars),"4,773",±99,(X),(X),4773.0,,Mean cash public assistance income (dollars)
+        Median family income (dollars),"106,873",±570,(X),(X),106873.0,,Median family income (dollars)
+        Mean family income (dollars),"151,821",±803,(X),(X),151821.0,,Mean family income (dollars)
+    Per capita income (dollars),"50,712",±237,(X),(X),50712.0,,Per capita income (dollars)
+        Median nonfamily income (dollars),"53,448",±427,(X),(X),53448.0,,Median nonfamily income (dollars)
+        Mean nonfamily income (dollars),"84,425",±608,(X),(X),84425.0,,Mean nonfamily income (dollars)
+    Median earnings for workers (dollars),"50,891",±182,(X),(X),50891.0,,Median earnings for workers (dollars)
+"    Median earnings for male full-time, year-round workers (dollars)","74,705",±298,(X),(X),74705.0,,"Median earnings for male full-time, year-round workers (dollars)"
+"    Median earnings for female full-time, year-round workers (dollars)","65,839",±290,(X),(X),65839.0,,"Median earnings for female full-time, year-round workers (dollars)"
+PERCENTAGE OF FAMILIES AND PEOPLE WHOSE INCOME IN THE PAST 12 MONTHS IS BELOW THE POVERTY LEVEL,,,,,,,PERCENTAGE OF FAMILIES AND PEOPLE WHOSE INCOME IN THE PAST 12 MONTHS IS BELOW THE POVERTY LEVEL
