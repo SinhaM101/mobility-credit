@@ -1,0 +1,58 @@
+WEEK 3 PROJECT UPDATE
+=====================
+
+MAIN TASK
+---------
+What is the main task you want to solve using your dataset?
+Analyze how income varies across New York State by examining household income distribution, key income metrics, and their relationship to education, housing, and poverty indicators using American Community Survey (ACS) data.
+
+What is the expected final output of this task?
+A big data pipeline that processes ACS datasets to reveal income inequality patterns, cross-dataset correlations (income ↔ education, housing, poverty), and policy-relevant insights for New York State.
+
+Conceptually, how would you break this task into a few simple steps?
+Step 1: Load and clean 4 ACS datasets (Demographic, Economic, Social, Housing)
+Step 2: Extract and standardize income-related data from Economic dataset
+Step 3: Analyze key income metrics (median, mean, per capita, inequality ratio)
+Step 4: Analyze income distribution across 10 brackets
+Step 5: Cross-dataset analysis linking income to education, housing, and poverty
+Step 6: Generate summary statistics and visualizations
+
+
+SHELL / SQL AWARENESS
+---------------------
+4. Which parts of the task do you think are more suitable for:
+
+Shell?
+Once the SQL logic is validated, Shell scripts handle: downloading ACS data files, automating data refreshes (monthly/quarterly), batch processing across multiple geographic regions (all states, all tracts), and production pipeline deployment (cron jobs, error alerts, logging).
+
+SQL?
+SQL handles the core analytical logic: loading and cleaning ACS tables, filtering income-related rows, aggregating statistics by income bracket, joining across Demographic/Economic/Social/Housing datasets, and computing cross-dataset correlations.
+
+5. Why does this choice make sense?
+ACS data is consistently structured across years and geographies - SQL tables always have similar parameters. Since Census data is gathered regularly, we use SQL as proof-of-concept for the analytical logic, then Shell to automate and update the input data at scale.
+
+
+PROGRESS (WEEK 3)
+-----------------
+What have you clarified or decided this week about your approach?
+Defined the project scope and identified relevant ACS datasets (DP03 Economic Characteristics, DP05 Demographics). Established the 6-step processing workflow and determined Shell/SQL division of responsibilities.
+
+Can this progress be summarized in ≤ 2 sentences?
+Identified 4 ACS datasets (Demographic, Economic, Social, Housing) totaling 590 entries representing 19.8 million NY residents. Defined 6-step workflow: load, extract, analyze metrics, distribution, cross-dataset analysis, summary.
+
+
+PROBLEM (MAIN BOTTLENECK)
+-------------------------
+8. What is the main conceptual difficulty you are facing right now?
+Understanding the deliverables before we have started the project.
+
+
+PLAN (NEXT WEEK)
+----------------
+What do you plan to work on next week?
+Build the prototype and proof of concept - a traditional solution (single-threaded Python) to validate the processing logic before scaling to big data pipeline.
+
+Concrete Deliverable: Working Python prototype that loads, cleans, and analyzes the 4 ACS datasets with execution time and memory metrics.
+
+Do you think this plan is realistic to complete within one week?
+Yes - the datasets are small (~46 KB total) and the processing steps are well-defined.

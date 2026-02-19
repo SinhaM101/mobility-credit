@@ -135,14 +135,29 @@ python3 income_analysis_prototype.py
 
 ```
 mobility-credit/
-├── README.md                      # Project documentation
-├── requirements.txt               # Python dependencies
-├── income_analysis_prototype.py   # Traditional solution prototype
-├── cleaned_income_data.csv        # Output: cleaned income data
-├── NYC Demographic ACS.csv        # Dataset: demographics
-├── NYC Economic ACS.csv           # Dataset: economic indicators
-├── NYC Social ACS.csv             # Dataset: social characteristics
-└── NYC Housing ACS.csv            # Dataset: housing data
+├── README.md                        # Project documentation
+├── requirements.txt                 # Python dependencies
+├── project_qa.txt                   # Weekly progress Q&A
+├── data/
+│   ├── NYC Demographic ACS.csv      # Dataset: demographics
+│   ├── NYC Economic ACS.csv         # Dataset: economic indicators
+│   ├── NYC Social ACS.csv           # Dataset: social characteristics
+│   ├── NYC Housing ACS.csv          # Dataset: housing data
+│   ├── countypres_2000-2024.csv     # Dataset: presidential voting (full)
+│   ├── countypres_ny_state.csv      # Dataset: NY State voting (filtered)
+│   └── countypres_nyc.csv           # Dataset: NYC voting (filtered)
+├── scripts/
+│   ├── income_analysis_prototype.py # Traditional solution prototype
+│   ├── filter_presidential_data.py  # Filter voting data to NYC
+│   ├── income_voting_analysis.py    # Income vs voting analysis
+│   └── create_graphs.py             # Generate visualizations
+├── output/
+│   ├── cleaned_income_data.csv      # Extracted income data
+│   ├── nyc_income_voting_analysis.csv # Merged analysis data
+│   ├── nyc_income_voting_graphs.png # Visualization: graphs
+│   └── nyc_summary_table.png        # Visualization: summary table
+└── Report/
+    └── main_simple.tex              # LaTeX report
 ```
 
 ---
