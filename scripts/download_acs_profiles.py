@@ -25,8 +25,8 @@ from typing import Optional
 # Configuration
 # =============================================================================
 
-# Census API base URL for ACS 5-Year Data Profiles (2022)
-BASE_URL = "https://api.census.gov/data/2022/acs/acs5/profile"
+# Census API base URL for ACS 5-Year Data Profiles (2024 - covers 2020-2024)
+BASE_URL = "https://api.census.gov/data/2024/acs/acs5/profile"
 
 # Output directory
 OUTPUT_DIR = "./data/acs_downloads"
