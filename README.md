@@ -1,105 +1,95 @@
-# Income Variation Analysis - New York State
+# Income Inequality and Voting Patterns Analysis
 
-Big Data Project: Analyzing income variation across New York State using American Community Survey (ACS) data.
+Big Data Project: Analyzing income inequality and voting patterns across all U.S. states and counties using American Community Survey (ACS) data and presidential election results.
 
 ---
 
 ## Project Overview
 
-**Objective:** Analyze how income varies across New York State by examining household income distribution, key income metrics, and their relationship to education, housing, and poverty indicators.
+**Objective:** How do county-level economic conditions correlate with voting patterns in the United States?
 
-**Value:** Understanding income inequality patterns helps inform policy decisions, identify underserved communities, and reveal correlations between socioeconomic factors.
+**Value:** Understanding income inequality patterns and their correlation with political behavior helps inform policy decisions, identify underserved communities, and reveal socioeconomic-political relationships.
 
-**Current Status:** Traditional solution prototype (single-threaded Python)
-
-**Next Phase:** Big data pipeline with parallel processing
+**Current Status:** Full national dataset with ACS economic data and presidential voting data
 
 ---
 
 ## Big Data Justification
 
 ### Volume
-- **590 total data entries** across 4 datasets
-- **~46 KB** raw CSV data (prototype scale)
-- **19.8 million population** represented in New York State
-- Scalable to full ACS microdata (millions of records, GB-scale)
+- **3,143+ counties** across all 51 states (including DC)
+- **137 economic variables** per county from ACS DP03
+- **2.9 MB** ACS economic data + **94,019 rows** presidential voting data
+- **7 election cycles** (2000-2024) of voting data
 
 ### Variety
-Four distinct structured datasets with different focuses:
-| Dataset | Rows | Content Focus |
-|---------|------|---------------|
-| Demographic | 113 | Population, age, sex, race |
-| Economic | 145 | Employment, income, poverty |
-| Social | 172 | Households, education, language |
-| Housing | 160 | Occupancy, value, rent |
+Multiple data sources with different focuses:
+| Dataset | Scope | Content Focus |
+|---------|-------|---------------|
+| ACS DP03 Economic | 51 states, 3,143+ counties | Employment, income, poverty, commuting |
+| Presidential Voting | 2000-2024 | County-level election results by candidate |
 
 ### Value
-- Income inequality measurement (Mean/Median ratio: 1.49)
-- Cross-dataset correlations (income ↔ education, housing, poverty)
-- Policy-relevant insights for New York State
+- Income inequality measurement across all U.S. counties
+- Voting pattern analysis by economic indicators
+- Cross-dataset correlations (income ↔ voting behavior)
+- Policy-relevant insights at national scale
 
 ---
 
 ## Datasets
 
-All data sourced from **American Community Survey (ACS)** for New York State:
+### ACS 5-Year Data Profiles (2024 vintage, covers 2020-2024)
 
-1. **NYC Demographic ACS.csv** - Population demographics, age distribution, sex ratios, race/ethnicity
-2. **NYC Economic ACS.csv** - Employment status, income brackets, poverty levels, health insurance
-3. **NYC Social ACS.csv** - Household types, education attainment, language, citizenship
-4. **NYC Housing ACS.csv** - Housing occupancy, home values, rent, mortgage costs
+Downloaded via Census API for all U.S. counties:
+
+| Table | Name | Variables | Description |
+|-------|------|-----------|-------------|
+| DP03 | Economic Characteristics | 137 | Employment, occupation, industry, income, poverty, health insurance, commuting |
+
+### Presidential Election Data
+
+- **countypres_2000-2024.csv** - County-level presidential election results (2000-2024)
+- Includes: state, county, year, candidate, party, votes, total votes
 
 ---
 
-## Traditional Solution (Prototype)
+## Data Download Scripts
 
-### Eight-Step Processing Pipeline
+### Download ACS DP03 Economic Data
 
-| Step | Description | Execution Time |
-|------|-------------|----------------|
-| 1 | Load all 4 datasets | ~0.007s |
-| 2 | Clean and standardize column names | ~0.0001s |
-| 3 | Extract income-related data | ~0.003s |
-| 4 | Clean numeric values (remove commas, handle special values) | ~0.001s |
-| 5 | Analyze key income metrics | ~0.002s |
-| 6 | Analyze income distribution (10 brackets) | ~0.002s |
-| 7 | Cross-dataset analysis (education, housing, poverty) | ~0.004s |
-| 8 | Generate summary statistics | ~0.0001s |
+```bash
+# Set your Census API key
+export CENSUS_API_KEY='your_key_here'
 
-**Total Execution Time:** ~0.02 seconds  
-**Total Memory Usage:** ~224 KB
+# Download for a single state (e.g., Alabama = 01)
+python3 scripts/download_dp03_full.py --state 01
 
-### Key Findings
+# Download for ALL states (51 states, ~3 minutes)
+python3 scripts/download_dp03_full.py
+```
 
-#### Income Metrics (New York State)
-| Metric | Value |
-|--------|-------|
-| Median Household Income | $85,974 |
-| Mean Household Income | $128,247 |
-| Per Capita Income | $50,712 |
-| Median Family Income | $106,873 |
-| Income Inequality Ratio | 1.49 |
+**Output:** `data/acs_downloads/{state_fips}_{state_name}_DP03_Economic_FULL.csv`
 
-#### Income Distribution
-| Bracket | Households | Percent |
-|---------|------------|---------|
-| Less than $10,000 | 448,836 | 5.8% |
-| $10,000 - $14,999 | 304,684 | 3.9% |
-| $15,000 - $24,999 | 483,327 | 6.3% |
-| $25,000 - $34,999 | 475,794 | 6.2% |
-| $35,000 - $49,999 | 686,990 | 8.9% |
-| $50,000 - $74,999 | 1,051,347 | 13.6% |
-| $75,000 - $99,999 | 883,133 | 11.4% |
-| $100,000 - $149,999 | 1,287,671 | 16.7% |
-| $150,000 - $199,999 | 782,846 | 10.1% |
-| $200,000 or more | 1,318,018 | 17.1% |
+### Key DP03 Economic Variables
 
-#### Cross-Dataset Insights
-- **High School Graduate or Higher:** 88.0%
-- **Bachelor's Degree or Higher:** 40.2%
-- **Median Home Value:** $423,800
-- **Poverty Rate:** 14.0%
-- **Rent-Burdened Households (>35% income):** 26.2%
+| Category | Variables |
+|----------|-----------|
+| Employment | Labor force, employed, unemployed, unemployment rate |
+| Occupation | Management, service, sales, construction, production |
+| Industry | Agriculture, manufacturing, retail, healthcare, etc. |
+| Income | All brackets ($0-$200k+), median, mean household income |
+| Per Capita | Per capita income, median earnings |
+| Poverty | Poverty rate, health insurance coverage |
+| Commuting | Drove alone, carpooled, public transit, work from home |
+
+### Merge Economic + Voting Data
+
+```bash
+python3 scripts/merge_economic_presidential.py
+```
+
+**Output:** `data/alabama_economic_presidential_merged.csv`
 
 ---
 
@@ -107,17 +97,13 @@ All data sourced from **American Community Survey (ACS)** for New York State:
 
 ### Requirements
 ```bash
-pip install -r requirements.txt
+pip install pandas requests
 ```
 
-### Run the Prototype
-```bash
-python3 income_analysis_prototype.py
-```
-
-### Output
-- Console output with step-by-step analysis
-- `cleaned_income_data.csv` - Extracted income data (23 rows)
+### Get a Census API Key
+1. Visit: https://api.census.gov/data/key_signup.html
+2. Register for a free key
+3. Set environment variable: `export CENSUS_API_KEY='your_key'`
 
 ---
 
@@ -135,29 +121,26 @@ python3 income_analysis_prototype.py
 
 ```
 mobility-credit/
-├── README.md                        # Project documentation
-├── requirements.txt                 # Python dependencies
-├── project_qa.txt                   # Weekly progress Q&A
+├── README.md                           # Project documentation
+├── requirements.txt                    # Python dependencies
+├── project_qa.txt                      # Weekly progress Q&A
 ├── data/
-│   ├── NYC Demographic ACS.csv      # Dataset: demographics
-│   ├── NYC Economic ACS.csv         # Dataset: economic indicators
-│   ├── NYC Social ACS.csv           # Dataset: social characteristics
-│   ├── NYC Housing ACS.csv          # Dataset: housing data
-│   ├── countypres_2000-2024.csv     # Dataset: presidential voting (full)
-│   ├── countypres_ny_state.csv      # Dataset: NY State voting (filtered)
-│   └── countypres_nyc.csv           # Dataset: NYC voting (filtered)
+│   ├── countypres_2000-2024.csv        # Presidential voting data (2000-2024)
+│   ├── alabama_economic_presidential_merged.csv  # Merged AL data
+│   └── acs_downloads/                  # ACS economic data (all states)
+│       ├── 01_Alabama_DP03_Economic_FULL.csv
+│       ├── 06_California_DP03_Economic_FULL.csv
+│       ├── 36_New_York_DP03_Economic_FULL.csv
+│       ├── 48_Texas_DP03_Economic_FULL.csv
+│       └── ... (51 state files total)
 ├── scripts/
-│   ├── income_analysis_prototype.py # Traditional solution prototype
-│   ├── filter_presidential_data.py  # Filter voting data to NYC
-│   ├── income_voting_analysis.py    # Income vs voting analysis
-│   └── create_graphs.py             # Generate visualizations
-├── output/
-│   ├── cleaned_income_data.csv      # Extracted income data
-│   ├── nyc_income_voting_analysis.csv # Merged analysis data
-│   ├── nyc_income_voting_graphs.png # Visualization: graphs
-│   └── nyc_summary_table.png        # Visualization: summary table
+│   ├── download_dp03_full.py           # Download ALL DP03 economic data
+│   ├── download_dp03_economic.py       # Download curated DP03 variables
+│   ├── download_acs_profiles.py        # Download all 4 ACS profile tables
+│   ├── merge_economic_presidential.py  # Merge economic + voting data
+│   └── filter_presidential_data.py     # Filter voting data by state
 └── Report/
-    └── main_simple.tex              # LaTeX report
+    └── main.tex                        # LaTeX report
 ```
 
 ---
