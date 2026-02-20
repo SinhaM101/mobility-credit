@@ -18,12 +18,13 @@ This includes:
 Source: U.S. Census ACS 5-Year Data Profile
 Table: DP03 – Selected Economic Characteristics (ALL 137 variables)
 Geography: County level
-Endpoint: 2024 ACS 5-Year (covers 2020-2024)
+Endpoint: ACS 5-Year Data Profiles (2009-2020 available)
 
 Usage:
     export CENSUS_API_KEY='your_key_here'
-    python download_dp03_full.py --state 01        # Alabama
-    python download_dp03_full.py                   # All states
+    python download_dp03_full.py --state 01 --year 2020   # Alabama, 2020
+    python download_dp03_full.py --year 2020              # All states, 2020
+    python download_dp03_full.py                          # All states, all years (2009-2020)
 """
 
 import requests
@@ -38,8 +39,16 @@ from typing import Optional, List
 # Configuration
 # =============================================================================
 
-API_BASE_URL = "https://api.census.gov/data/2024/acs/acs5/profile"
 OUTPUT_DIR = "./data/acs_downloads"
+
+# ACS 5-Year Data Profile available years
+# Note: ACS 5-Year started in 2009 (covering 2005-2009)
+# Years 2000-2008 are not available via ACS 5-Year API
+AVAILABLE_YEARS = list(range(2014, 2021))  # 2009-2020
+
+def get_api_url(year: int) -> str:
+    """Get the Census API URL for a specific year."""
+    return f"https://api.census.gov/data/{year}/acs/acs5/profile"
 
 # State FIPS codes
 STATES = {
@@ -72,14 +81,14 @@ def get_api_key() -> Optional[str]:
     return key
 
 
-def get_all_dp03_variables() -> dict:
+def get_all_dp03_variables(year: int) -> dict:
     """
     Fetch ALL DP03 variable codes and their labels from the Census API.
     Returns dict mapping variable code to human-readable label.
     """
-    print("Fetching DP03 variable definitions from Census API...")
+    print(f"Fetching DP03 variable definitions for {year}...")
     
-    url = "https://api.census.gov/data/2024/acs/acs5/profile/variables.json"
+    url = f"https://api.census.gov/data/{year}/acs/acs5/profile/variables.json"
     
     try:
         response = requests.get(url, timeout=60)
@@ -116,13 +125,14 @@ def get_all_dp03_variables() -> dict:
         return {}
 
 
-def download_dp03_batch(state_fips: str, var_codes: List[str], api_key: Optional[str]) -> Optional[pd.DataFrame]:
+def download_dp03_batch(state_fips: str, var_codes: List[str], api_key: Optional[str], year: int) -> Optional[pd.DataFrame]:
     """
     Download a batch of DP03 variables for all counties in a state.
     The Census API has URL length limits, so we batch variables.
     """
+    api_url = get_api_url(year)
     var_string = ",".join(["NAME"] + var_codes)
-    url = f"{API_BASE_URL}?get={var_string}&for=county:*&in=state:{state_fips}"
+    url = f"{api_url}?get={var_string}&for=county:*&in=state:{state_fips}"
     
     if api_key:
         url += f"&key={api_key}"
@@ -145,12 +155,12 @@ def download_dp03_batch(state_fips: str, var_codes: List[str], api_key: Optional
         return None
 
 
-def download_dp03_full(state_fips: str, state_name: str, variables: dict, api_key: Optional[str]) -> Optional[pd.DataFrame]:
+def download_dp03_full(state_fips: str, state_name: str, variables: dict, api_key: Optional[str], year: int) -> Optional[pd.DataFrame]:
     """
     Download ALL DP03 variables for all counties in a state.
     Makes multiple API calls in batches to avoid URL length limits.
     """
-    print(f"\nDownloading FULL DP03 for {state_name} (FIPS: {state_fips})...")
+    print(f"\nDownloading FULL DP03 for {state_name} (FIPS: {state_fips}), Year: {year}...")
     print(f"  Total variables: {len(variables)}")
     
     var_codes = sorted(variables.keys())
@@ -168,7 +178,7 @@ def download_dp03_full(state_fips: str, state_name: str, variables: dict, api_ke
         
         print(f"  Batch {batch_num}/{total_batches}: {len(batch)} variables...")
         
-        df = download_dp03_batch(state_fips, batch, api_key)
+        df = download_dp03_batch(state_fips, batch, api_key, year)
         
         if df is not None:
             all_dfs.append(df)
@@ -210,23 +220,27 @@ def main():
         description="Download FULL ACS 5-Year DP03 Economic Characteristics data"
     )
     parser.add_argument("--state", type=str, help="State FIPS code (e.g., 01 for Alabama)")
+    parser.add_argument("--year", type=int, help="Year (2009-2020). If not specified, downloads all years.")
     parser.add_argument("--output", type=str, default=OUTPUT_DIR, help="Output directory")
     args = parser.parse_args()
     
     print("=" * 70)
     print("ACS 5-Year DP03 FULL Economic Characteristics Downloader")
     print("=" * 70)
-    print(f"Endpoint: {API_BASE_URL}")
+    print(f"Available years: {AVAILABLE_YEARS}")
     print(f"Output: {args.output}")
     
     # Get API key
     api_key = get_api_key()
     
-    # Get all DP03 variables
-    variables = get_all_dp03_variables()
-    if not variables:
-        print("ERROR: Could not fetch variable definitions")
-        sys.exit(1)
+    # Determine which years to download
+    if args.year:
+        if args.year not in AVAILABLE_YEARS:
+            print(f"\nERROR: Invalid year: {args.year}. Available: {AVAILABLE_YEARS}")
+            sys.exit(1)
+        years_to_download = [args.year]
+    else:
+        years_to_download = AVAILABLE_YEARS
     
     # Determine which states to download
     if args.state:
@@ -237,22 +251,41 @@ def main():
     else:
         states_to_download = STATES
     
+    print(f"Years: {years_to_download}")
     print(f"States: {len(states_to_download)}")
     print("=" * 70)
     
     # Create output directory
     os.makedirs(args.output, exist_ok=True)
     
-    # Download data
-    for state_fips, state_name in states_to_download.items():
-        df = download_dp03_full(state_fips, state_name, variables, api_key)
+    # Download data for each year
+    for year in years_to_download:
+        print(f"\n{'='*70}")
+        print(f"YEAR: {year}")
+        print(f"{'='*70}")
         
-        if df is not None:
-            filename = f"{state_fips}_{state_name}_DP03_Economic_FULL.csv"
-            filepath = os.path.join(args.output, filename)
-            df.to_csv(filepath, index=False)
-            print(f"  Saved: {filepath}")
-            print(f"  Size: {os.path.getsize(filepath) / 1024:.1f} KB")
+        # Get variables for this year (may differ slightly between years)
+        variables = get_all_dp03_variables(year)
+        if not variables:
+            print(f"ERROR: Could not fetch variable definitions for {year}")
+            continue
+        
+        # Create year subdirectory
+        year_dir = os.path.join(args.output, str(year))
+        os.makedirs(year_dir, exist_ok=True)
+        
+        for state_fips, state_name in states_to_download.items():
+            df = download_dp03_full(state_fips, state_name, variables, api_key, year)
+            
+            if df is not None:
+                # Add year column
+                df.insert(0, "year", year)
+                
+                filename = f"{state_fips}_{state_name}_DP03_Economic_FULL.csv"
+                filepath = os.path.join(year_dir, filename)
+                df.to_csv(filepath, index=False)
+                print(f"  Saved: {filepath}")
+                print(f"  Size: {os.path.getsize(filepath) / 1024:.1f} KB")
     
     print("\n" + "=" * 70)
     print("Download complete!")
