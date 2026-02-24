@@ -1,0 +1,65 @@
+year,county_name,gross_rent_as_a_percentage_of_household_income_gra,gross_rent_as_a_percentage_of_household_income_gra,gross_rent_as_a_percentage_of_household_income_gra,gross_rent_as_a_percentage_of_household_income_gra,gross_rent_as_a_percentage_of_household_income_gra,gross_rent_as_a_percentage_of_household_income_gra,gross_rent_as_a_percentage_of_household_income_gra,gross_rent_as_a_percentage_of_household_income_gra,state_fips,county_fips
+2015,Pueblo County; Colorado,21147,2227,2235,2393,2238,2031,10023,1372,08,101
+2015,Montrose County; Colorado,4518,684,530,706,280,362,1956,504,08,085
+2015,Morgan County; Colorado,3373,715,453,387,446,283,1089,301,08,087
+2015,Park County; Colorado,1221,98,129,226,91,83,594,71,08,093
+2015,Saguache County; Colorado,651,62,69,93,115,77,235,134,08,109
+2015,Mesa County; Colorado,17005,1619,2409,1740,1877,1710,7650,1302,08,077
+2015,Prowers County; Colorado,1409,205,186,146,90,268,514,183,08,099
+2015,Hinsdale County; Colorado,83,27,6,13,5,4,28,12,08,053
+2015,El Paso County; Colorado,88452,8685,11553,12127,11159,9538,35390,3481,08,041
+2015,Washington County; Colorado,410,104,83,42,40,52,89,103,08,121
+2015,Grand County; Colorado,1348,249,275,166,168,84,406,84,08,049
+2015,Arapahoe County; Colorado,83401,6371,10948,11120,10580,8973,35409,3505,08,005
+2015,Otero County; Colorado,2453,297,233,112,385,302,1124,248,08,089
+2015,Broomfield County; Colorado,7101,742,1519,926,754,582,2578,332,08,014
+2015,Phillips County; Colorado,430,123,56,58,30,19,144,79,08,095
+2015,Denver County; Colorado,133644,15484,17955,18616,16341,12341,52907,5877,08,031
+2015,Kiowa County; Colorado,88,21,26,11,6,5,19,53,08,061
+2015,Baca County; Colorado,327,87,25,34,35,31,115,98,08,009
+2015,Gilpin County; Colorado,571,113,88,64,42,46,218,28,08,047
+2015,Kit Carson County; Colorado,765,108,95,121,93,63,285,193,08,063
+2015,Gunnison County; Colorado,2382,284,191,242,292,354,1019,176,08,051
+2015,Jefferson County; Colorado,64463,7116,8726,9162,7781,5700,25978,2716,08,059
+2015,Ouray County; Colorado,457,109,73,47,32,69,127,104,08,091
+2015,Rio Blanco County; Colorado,724,222,160,57,34,69,182,102,08,103
+2015,Weld County; Colorado,26426,3176,3409,3078,3361,2531,10871,2444,08,123
+2015,Conejos County; Colorado,497,55,77,28,94,84,159,111,08,021
+2015,Costilla County; Colorado,250,52,13,29,7,24,125,100,08,023
+2015,Douglas County; Colorado,21629,3019,3577,3447,2788,1800,6998,1223,08,035
+2015,Eagle County; Colorado,5535,697,825,653,640,672,2048,331,08,037
+2015,La Plata County; Colorado,6441,773,841,840,735,725,2527,659,08,067
+2015,Moffat County; Colorado,1370,273,168,135,161,155,478,130,08,081
+2015,Rio Grande County; Colorado,1424,391,182,261,81,119,390,115,08,105
+2015,Bent County; Colorado,386,52,38,14,50,53,179,94,08,011
+2015,Crowley County; Colorado,185,32,13,26,14,24,76,43,08,025
+2015,San Juan County; Colorado,81,5,0,13,13,15,35,19,08,111
+2015,Jackson County; Colorado,114,24,24,5,10,3,48,84,08,057
+2015,Logan County; Colorado,2454,343,353,323,292,160,983,241,08,075
+2015,Montezuma County; Colorado,2679,559,293,236,288,228,1075,407,08,083
+2015,Teller County; Colorado,1686,100,257,184,191,138,816,167,08,119
+2015,Boulder County; Colorado,44059,4426,5240,4734,4626,3212,21821,2294,08,013
+2015,Las Animas County; Colorado,1595,278,267,178,76,99,697,223,08,071
+2015,Lincoln County; Colorado,482,54,53,72,59,53,191,92,08,073
+2015,Routt County; Colorado,2647,219,348,466,239,173,1202,265,08,107
+2015,Alamosa County; Colorado,2268,415,146,157,189,353,1008,278,08,003
+2015,Clear Creek County; Colorado,834,181,98,93,93,59,310,69,08,019
+2015,Fremont County; Colorado,4252,545,612,450,565,321,1759,506,08,043
+2015,Archuleta County; Colorado,1389,143,143,291,73,163,576,118,08,007
+2015,Huerfano County; Colorado,654,86,26,16,115,47,364,163,08,055
+2015,Chaffee County; Colorado,1812,265,280,205,172,204,686,85,08,015
+2015,Garfield County; Colorado,6932,470,779,957,1083,750,2893,359,08,045
+2015,Mineral County; Colorado,33,5,0,11,0,9,8,10,08,079
+2015,Sedgwick County; Colorado,231,41,53,30,27,24,56,15,08,115
+2015,Custer County; Colorado,346,56,14,50,26,36,164,59,08,027
+2015,Adams County; Colorado,53568,5100,6194,7237,7109,5912,22016,2017,08,001
+2015,Lake County; Colorado,1198,233,128,194,137,97,409,117,08,065
+2015,Pitkin County; Colorado,2434,348,416,300,377,167,826,202,08,097
+2015,Cheyenne County; Colorado,145,51,40,8,3,25,18,39,08,017
+2015,Dolores County; Colorado,102,24,5,9,13,7,44,60,08,033
+2015,Larimer County; Colorado,42645,3767,4474,5440,4504,3970,20490,2229,08,069
+2015,San Miguel County; Colorado,1262,90,141,189,157,123,562,47,08,113
+2015,Elbert County; Colorado,840,64,184,49,189,44,310,111,08,039
+2015,Yuma County; Colorado,1167,192,169,179,87,144,396,265,08,125
+2015,Summit County; Colorado,3133,286,487,446,444,278,1192,282,08,117
+2015,Delta County; Colorado,3015,555,292,296,228,281,1363,448,08,029
