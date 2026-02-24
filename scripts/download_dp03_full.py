@@ -39,7 +39,7 @@ from typing import Optional, List
 # Configuration
 # =============================================================================
 
-OUTPUT_DIR = "./data/acs_downloads"
+OUTPUT_DIR = "./data/acs_downloads/economic"
 
 # ACS 5-Year Data Profile available years
 # Note: ACS 5-Year started in 2009 (covering 2005-2009)
