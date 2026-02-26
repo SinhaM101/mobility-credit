@@ -117,6 +117,15 @@ def process_dataset(name: str, config: dict):
         if "year" not in df.columns:
             df.insert(0, "year", int(year))
         
+        # Split county_name into County and State columns
+        if "county_name" in df.columns:
+            # Format: "Autauga County; Alabama" -> County: "Autauga County", State: "Alabama"
+            split_cols = df["county_name"].str.split("; ", n=1, expand=True)
+            if split_cols.shape[1] == 2:
+                df.insert(1, "county", split_cols[0])
+                df.insert(2, "state", split_cols[1])
+                df.drop(columns=["county_name"], inplace=True)
+        
         # Save year file
         year_file = os.path.join(output_path, f"{name}_{year}.csv")
         df.to_csv(year_file, index=False)
@@ -133,7 +142,7 @@ def process_dataset(name: str, config: dict):
         master_df = pd.concat(all_years_dfs, ignore_index=True)
         
         # Reorder columns: priority columns first
-        priority_cols = ["year", "county_name", "state_fips", "county_fips"]
+        priority_cols = ["year", "county", "state", "state_fips", "county_fips"]
         final_cols = [c for c in priority_cols if c in master_df.columns]
         final_cols += [c for c in master_df.columns if c not in priority_cols]
         master_df = master_df[final_cols]

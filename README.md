@@ -107,9 +107,12 @@ pip install pandas requests
 
 | Component | Value |
 |-----------|-------|
-| Python Version | 3.9.6 |
-| Pandas Version | 2.3.3 |
-| OS | macOS |
+| Machine | MacBook Air |
+| Chip | Apple M4 (10 cores: 4 performance + 6 efficiency) |
+| RAM | 24 GB |
+| OS | macOS 26.2 (Build 25C56) |
+| Python | 3.9.6 |
+| Pandas | 2.3.3 |
 
 ---
 
