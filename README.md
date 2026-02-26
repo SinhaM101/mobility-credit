@@ -6,11 +6,11 @@ Big Data Project: Analyzing income inequality and voting patterns across all U.S
 
 ## Project Overview
 
-**Objective:** How do county-level economic conditions correlate with voting patterns in the United States?
+**Objective:** How do county-level economic, demographic, social, and housing conditions correlate with voting patterns in the United States?
 
 **Value:** Understanding income inequality patterns and their correlation with political behavior helps inform policy decisions, identify underserved communities, and reveal socioeconomic-political relationships.
 
-**Current Status:** Full national dataset with ACS economic data and presidential voting data
+**Current Status:** Full national dataset with ACS data (economic, social, housing, demographic) for 2009-2020 and presidential voting data 2000-2024
 
 ---
 
@@ -18,16 +18,19 @@ Big Data Project: Analyzing income inequality and voting patterns across all U.S
 
 ### Volume
 - **3,143+ counties** across all 51 states (including DC)
-- **137 economic variables** per county from ACS DP03
-- **2.9 MB** ACS economic data + **94,019 rows** presidential voting data
-- **7 election cycles** (2000-2024) of voting data
+- **500+ variables** per county across 4 ACS Data Profile tables
+- **93 MB** ACS data (2,053 files) + **8.9 MB** presidential voting data (94,019 rows)
+- **12 years** of ACS data (2009-2020) + **7 election cycles** (2000-2024)
 
 ### Variety
-Multiple data sources with different focuses:
-| Dataset | Scope | Content Focus |
-|---------|-------|---------------|
-| ACS DP03 Economic | 51 states, 3,143+ counties | Employment, income, poverty, commuting |
-| Presidential Voting | 2000-2024 | County-level election results by candidate |
+Multiple data sources with different structures:
+| Dataset | Format | Variables | Content Focus |
+|---------|--------|-----------|---------------|
+| ACS DP02 Social | Wide | 158 | Households, education, language, ancestry |
+| ACS DP03 Economic | Wide | 141 | Employment, income, poverty, commuting |
+| ACS DP04 Housing | Wide | 145 | Occupancy, structure, value, rent |
+| ACS DP05 Demographic | Wide | 93 | Age, sex, race, population |
+| Presidential Voting | Long | 12 | County-level election results by candidate |
 
 ### Value
 - Income inequality measurement across all U.S. counties
@@ -39,13 +42,16 @@ Multiple data sources with different focuses:
 
 ## Datasets
 
-### ACS 5-Year Data Profiles (2024 vintage, covers 2020-2024)
+### ACS 5-Year Data Profiles (2009-2020)
 
 Downloaded via Census API for all U.S. counties:
 
 | Table | Name | Variables | Description |
 |-------|------|-----------|-------------|
-| DP03 | Economic Characteristics | 137 | Employment, occupation, industry, income, poverty, health insurance, commuting |
+| DP02 | Social Characteristics | 158 | Households, education, language, ancestry |
+| DP03 | Economic Characteristics | 141 | Employment, income, poverty, commuting |
+| DP04 | Housing Characteristics | 145 | Occupancy, structure, value, rent |
+| DP05 | Demographic Characteristics | 93 | Age, sex, race, population |
 
 ### Presidential Election Data
 
@@ -56,40 +62,30 @@ Downloaded via Census API for all U.S. counties:
 
 ## Data Download Scripts
 
-### Download ACS DP03 Economic Data
+### Download ACS Data
 
 ```bash
 # Set your Census API key
 export CENSUS_API_KEY='your_key_here'
 
-# Download for a single state (e.g., Alabama = 01)
-python3 scripts/download_dp03_full.py --state 01
+# Download all years (2009-2020) for all states
+python3 scripts/download_dp02_full.py   # Social
+python3 scripts/download_dp03_full.py   # Economic
+python3 scripts/download_dp04_full.py   # Housing
+python3 scripts/download_dp05_full.py   # Demographic
 
-# Download for ALL states (51 states, ~3 minutes)
-python3 scripts/download_dp03_full.py
+# Download single year
+python3 scripts/download_dp03_full.py --year 2020
 ```
 
-**Output:** `data/acs_downloads/{state_fips}_{state_name}_DP03_Economic_FULL.csv`
-
-### Key DP03 Economic Variables
-
-| Category | Variables |
-|----------|-----------|
-| Employment | Labor force, employed, unemployed, unemployment rate |
-| Occupation | Management, service, sales, construction, production |
-| Industry | Agriculture, manufacturing, retail, healthcare, etc. |
-| Income | All brackets ($0-$200k+), median, mean household income |
-| Per Capita | Per capita income, median earnings |
-| Poverty | Poverty rate, health insurance coverage |
-| Commuting | Drove alone, carpooled, public transit, work from home |
-
-### Merge Economic + Voting Data
+### Merge State Files
 
 ```bash
-python3 scripts/merge_economic_presidential.py
+# Merge all state files into consolidated datasets
+python3 scripts/merge_acs_data.py
 ```
 
-**Output:** `data/alabama_economic_presidential_merged.csv`
+**Output:** `data/acs_merged/{category}/{category}_all_years.csv`
 
 ---
 
@@ -123,22 +119,30 @@ pip install pandas requests
 mobility-credit/
 ├── README.md                           # Project documentation
 ├── requirements.txt                    # Python dependencies
-├── project_qa.txt                      # Weekly progress Q&A
 ├── data/
 │   ├── countypres_2000-2024.csv        # Presidential voting data (2000-2024)
-│   ├── alabama_economic_presidential_merged.csv  # Merged AL data
-│   └── acs_downloads/                  # ACS economic data (all states)
-│       ├── 01_Alabama_DP03_Economic_FULL.csv
-│       ├── 06_California_DP03_Economic_FULL.csv
-│       ├── 36_New_York_DP03_Economic_FULL.csv
-│       ├── 48_Texas_DP03_Economic_FULL.csv
-│       └── ... (51 state files total)
+│   ├── acs_downloads/                  # Raw ACS data by state/year
+│   │   ├── economic/                   # DP03 (51 states × 12 years)
+│   │   ├── social/                     # DP02 (51 states × 12 years)
+│   │   ├── housing/                    # DP04 (51 states × 7 years)
+│   │   └── demographic/                # DP05 (51 states × 12 years)
+│   └── acs_merged/                     # Consolidated ACS data
+│       ├── economic/
+│       │   ├── economic_2009.csv       # All counties, single year
+│       │   ├── economic_2020.csv
+│       │   └── economic_all_years.csv  # 37,577 rows, 769 columns
+│       ├── social/
+│       │   └── social_all_years.csv    # 37,710 rows, 453 columns
+│       ├── housing/
+│       │   └── housing_all_years.csv   # 18,798 rows, 392 columns
+│       └── demographic/
+│           └── demographic_all_years.csv # 37,710 rows, 261 columns
 ├── scripts/
-│   ├── download_dp03_full.py           # Download ALL DP03 economic data
-│   ├── download_dp03_economic.py       # Download curated DP03 variables
-│   ├── download_acs_profiles.py        # Download all 4 ACS profile tables
-│   ├── merge_economic_presidential.py  # Merge economic + voting data
-│   └── filter_presidential_data.py     # Filter voting data by state
+│   ├── download_dp02_full.py           # Download DP02 Social data
+│   ├── download_dp03_full.py           # Download DP03 Economic data
+│   ├── download_dp04_full.py           # Download DP04 Housing data
+│   ├── download_dp05_full.py           # Download DP05 Demographic data
+│   └── merge_acs_data.py               # Merge state files into master CSVs
 └── Report/
     └── main.tex                        # LaTeX report
 ```
