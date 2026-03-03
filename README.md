@@ -87,13 +87,35 @@ python3 scripts/merge_acs_data.py
 
 **Output:** `data/acs_merged/{category}/{category}_all_years.csv`
 
+### MapReduce Analysis (Spark RDD)
+
+```bash
+# Run MapReduce performance comparison
+python3 scripts/mapreduce_analysis.py
+```
+
+**Output:** `data/mapreduce_output/performance_results.txt`
+
+---
+
+## MapReduce Performance Results
+
+| Configuration | Time (s) | Speedup |
+|---------------|----------|---------|
+| Baseline (Pandas) | 0.103 | 1.00× |
+| Spark local[1] | 1.311 | 0.08× |
+| Spark local[2] | 0.550 | 0.19× |
+| Spark local[4] | 0.523 | 0.20× |
+
+**Key Finding:** For small datasets (<100 MB), Spark overhead exceeds computation time. MapReduce benefits emerge at >1 GB scale.
+
 ---
 
 ## Installation & Usage
 
 ### Requirements
 ```bash
-pip install pandas requests
+pip install pandas requests pyspark
 ```
 
 ### Get a Census API Key
@@ -145,7 +167,8 @@ mobility-credit/
 │   ├── download_dp03_full.py           # Download DP03 Economic data
 │   ├── download_dp04_full.py           # Download DP04 Housing data
 │   ├── download_dp05_full.py           # Download DP05 Demographic data
-│   └── merge_acs_data.py               # Merge state files into master CSVs
+│   ├── merge_acs_data.py               # Merge state files into master CSVs
+│   └── mapreduce_analysis.py           # Spark RDD MapReduce analysis
 └── Report/
     └── main.tex                        # LaTeX report
 ```
