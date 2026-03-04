@@ -40,7 +40,7 @@ from typing import Optional, List
 OUTPUT_DIR = "./data/acs_downloads/demographic"
 
 # ACS 5-Year Data Profile available years
-AVAILABLE_YEARS = list(range(2009, 2021))  # 2009-2020
+AVAILABLE_YEARS = list(range(2009, 2024))  # 2009-2024
 
 def get_api_url(year: int) -> str:
     """Get the Census API URL for a specific year."""
@@ -67,13 +67,15 @@ STATES = {
 # Functions
 # =============================================================================
 
+DEFAULT_API_KEY = "f515f527da34254d41d3c448198296c42899002e"
+
 def get_api_key() -> Optional[str]:
-    """Get Census API key from environment variable."""
-    key = os.environ.get("CENSUS_API_KEY")
+    """Get Census API key from environment variable or use default."""
+    key = os.environ.get("CENSUS_API_KEY", DEFAULT_API_KEY)
     if key:
         print(f"Using API key: {key[:8]}...")
     else:
-        print("WARNING: CENSUS_API_KEY not set. Using API without key (rate limited).")
+        print("WARNING: No API key available. Requests may be rate limited.")
     return key
 
 

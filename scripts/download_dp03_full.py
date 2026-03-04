@@ -44,7 +44,7 @@ OUTPUT_DIR = "./data/acs_downloads/economic"
 # ACS 5-Year Data Profile available years
 # Note: ACS 5-Year started in 2009 (covering 2005-2009)
 # Years 2000-2008 are not available via ACS 5-Year API
-AVAILABLE_YEARS = list(range(2014, 2021))  # 2009-2020
+AVAILABLE_YEARS = list(range(2009, 2024))  # 2009-2024
 
 def get_api_url(year: int) -> str:
     """Get the Census API URL for a specific year."""
@@ -71,13 +71,15 @@ STATES = {
 # Functions
 # =============================================================================
 
+DEFAULT_API_KEY = "f515f527da34254d41d3c448198296c42899002e"
+
 def get_api_key() -> Optional[str]:
-    """Get Census API key from environment variable."""
-    key = os.environ.get("CENSUS_API_KEY")
+    """Get Census API key from environment variable or use default."""
+    key = os.environ.get("CENSUS_API_KEY", DEFAULT_API_KEY)
     if key:
         print(f"Using API key: {key[:8]}...")
     else:
-        print("WARNING: CENSUS_API_KEY not set. Using API without key (rate limited).")
+        print("WARNING: No API key available. Requests may be rate limited.")
     return key
 
 
@@ -125,10 +127,11 @@ def get_all_dp03_variables(year: int) -> dict:
         return {}
 
 
-def download_dp03_batch(state_fips: str, var_codes: List[str], api_key: Optional[str], year: int) -> Optional[pd.DataFrame]:
+def download_dp03_batch(state_fips: str, var_codes: List[str], api_key: Optional[str], year: int, max_retries: int = 3) -> Optional[pd.DataFrame]:
     """
     Download a batch of DP03 variables for all counties in a state.
     The Census API has URL length limits, so we batch variables.
+    Includes retry logic with exponential backoff.
     """
     api_url = get_api_url(year)
     var_string = ",".join(["NAME"] + var_codes)
@@ -137,22 +140,39 @@ def download_dp03_batch(state_fips: str, var_codes: List[str], api_key: Optional
     if api_key:
         url += f"&key={api_key}"
     
-    try:
-        response = requests.get(url, timeout=60)
-        response.raise_for_status()
-        data = response.json()
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, timeout=90)
+            response.raise_for_status()
+            data = response.json()
+            
+            if isinstance(data, dict) and "error" in data:
+                print(f"    API error: {data.get('error', 'Unknown')}")
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** (attempt + 1)  # 2, 4, 8 seconds
+                    print(f"    Retrying in {wait_time}s (attempt {attempt + 2}/{max_retries})...")
+                    time.sleep(wait_time)
+                    continue
+                return None
+            
+            headers = data[0]
+            rows = data[1:]
+            df = pd.DataFrame(rows, columns=headers)
+            return df
+            
+        except requests.exceptions.Timeout:
+            print(f"    Timeout (attempt {attempt + 1}/{max_retries})")
+        except requests.exceptions.HTTPError as e:
+            print(f"    HTTP error: {e} (attempt {attempt + 1}/{max_retries})")
+        except Exception as e:
+            print(f"    Batch error: {e} (attempt {attempt + 1}/{max_retries})")
         
-        if isinstance(data, dict) and "error" in data:
-            return None
-        
-        headers = data[0]
-        rows = data[1:]
-        df = pd.DataFrame(rows, columns=headers)
-        return df
-        
-    except Exception as e:
-        print(f"    Batch error: {e}")
-        return None
+        if attempt < max_retries - 1:
+            wait_time = 2 ** (attempt + 1)  # Exponential backoff: 2, 4, 8 seconds
+            print(f"    Retrying in {wait_time}s...")
+            time.sleep(wait_time)
+    
+    return None
 
 
 def download_dp03_full(state_fips: str, state_name: str, variables: dict, api_key: Optional[str], year: int) -> Optional[pd.DataFrame]:
@@ -165,8 +185,8 @@ def download_dp03_full(state_fips: str, state_name: str, variables: dict, api_ke
     
     var_codes = sorted(variables.keys())
     
-    # Batch size - Census API can handle about 50 variables per request
-    BATCH_SIZE = 45
+    # Batch size - reduced to 35 for more reliable requests (DP03 has many variables)
+    BATCH_SIZE = 35
     
     # First batch includes NAME, state, county identifiers
     all_dfs = []
@@ -185,8 +205,8 @@ def download_dp03_full(state_fips: str, state_name: str, variables: dict, api_ke
         else:
             print(f"    WARNING: Batch {batch_num} failed")
         
-        # Rate limiting
-        time.sleep(0.3)
+        # Rate limiting - increased delay to avoid API throttling
+        time.sleep(0.5)
     
     if not all_dfs:
         print("  ERROR: No data downloaded")
