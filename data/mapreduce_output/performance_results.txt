@@ -1,10 +1,10 @@
 MapReduce Performance Results
 ==================================================
 
-Baseline (Pandas): 0.103s
+Baseline (Pandas): 0.089s
 
-Spark local[1]: 1.311s (speedup: 0.08x)
-Spark local[2]: 0.550s (speedup: 0.19x)
-Spark local[4]: 0.523s (speedup: 0.20x)
+Spark local[1]: 1.365s (speedup: 0.07x)
+Spark local[2]: 0.558s (speedup: 0.16x)
+Spark local[4]: 0.537s (speedup: 0.17x)
 
 Results:
