@@ -1,10 +1,12 @@
 MapReduce Performance Results
+Using Spark Core RDD API
 ==================================================
 
-Baseline (Pandas): 0.089s
-
-Spark local[1]: 1.365s (speedup: 0.07x)
-Spark local[2]: 0.558s (speedup: 0.16x)
-Spark local[4]: 0.537s (speedup: 0.17x)
-
-Results:
+Pandas CSV: 0.094s (speedup: 1.00x)
+Spark RDD local[1]: 1.730s (speedup: 0.05x)
+Spark RDD local[2]: 0.935s (speedup: 0.10x)
+Spark RDD local[4]: 0.994s (speedup: 0.09x)
+Spark RDD CSV local[4]: 0.653s (speedup: 0.14x)
+Pandas All Years: 2.768s (speedup: 0.03x)
+Spark RDD All Years local[1]: 1.427s (speedup: 0.07x)
+Spark RDD All Years local[4]: 0.776s (speedup: 0.12x)
