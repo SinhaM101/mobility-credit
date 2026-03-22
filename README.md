@@ -1,16 +1,16 @@
-# Income Inequality and Voting Patterns Analysis
+# Socioeconomic Factors in Voting Patterns
 
-Big Data Project: Analyzing income inequality and voting patterns across all U.S. states and counties using American Community Survey (ACS) data and presidential election results.
+Big Data Project: Analyzing how county-level economic conditions correlate with voting patterns across all U.S. states and counties using American Community Survey (ACS) data and presidential election results.
 
 ---
 
 ## Project Overview
 
-**Objective:** How do county-level economic, demographic, social, and housing conditions correlate with voting patterns in the United States?
+**Objective:** Analyze how county-level economic conditions correlate with voting patterns in U.S. presidential elections from 2000 to 2024.
 
-**Value:** Understanding income inequality patterns and their correlation with political behavior helps inform policy decisions, identify underserved communities, and reveal socioeconomic-political relationships.
+**Value:** Understanding socioeconomic-political relationships helps identify underserved communities, reveal regional disparities, and inform policy discussions.
 
-**Current Status:** Full national dataset with ACS data (economic, social, housing, demographic) for 2009-2020 and presidential voting data 2000-2024
+**Status:** Complete analysis with ACS data (2009-2023) and presidential voting data (2000-2024), implemented with Spark Core RDD API for MapReduce optimization.
 
 ---
 
@@ -19,8 +19,9 @@ Big Data Project: Analyzing income inequality and voting patterns across all U.S
 ### Volume
 - **3,143+ counties** across all 51 states (including DC)
 - **500+ variables** per county across 4 ACS Data Profile tables
-- **93 MB** ACS data (2,053 files) + **8.9 MB** presidential voting data (94,019 rows)
-- **12 years** of ACS data (2009-2020) + **7 election cycles** (2000-2024)
+- **150 MB** ACS data (3,060 files) + **8.9 MB** presidential voting data (94,019 rows)
+- **15 years** of ACS data (2009-2023) + **7 election cycles** (2000-2024)
+- **47,141 county-year observations** with up to 400 columns each
 
 ### Variety
 Multiple data sources with different structures:
@@ -33,8 +34,8 @@ Multiple data sources with different structures:
 | Presidential Voting | Long | 12 | County-level election results by candidate |
 
 ### Value
-- Income inequality measurement across all U.S. counties
-- Voting pattern analysis by economic indicators
+- Quantifies urban-rural political divide (Democratic counties avg 288,926 pop vs Republican 40,311)
+- Correlates economic indicators with electoral outcomes
 - Cross-dataset correlations (income ↔ voting behavior)
 - Policy-relevant insights at national scale
 
@@ -42,7 +43,7 @@ Multiple data sources with different structures:
 
 ## Datasets
 
-### ACS 5-Year Data Profiles (2009-2020)
+### ACS 5-Year Data Profiles (2009-2023)
 
 Downloaded via Census API for all U.S. counties:
 
@@ -68,14 +69,14 @@ Downloaded via Census API for all U.S. counties:
 # Set your Census API key
 export CENSUS_API_KEY='your_key_here'
 
-# Download all years (2009-2020) for all states
+# Download all years (2009-2023) for all states
 python3 scripts/download_dp02_full.py   # Social
 python3 scripts/download_dp03_full.py   # Economic
 python3 scripts/download_dp04_full.py   # Housing
 python3 scripts/download_dp05_full.py   # Demographic
 
 # Download single year
-python3 scripts/download_dp03_full.py --year 2020
+python3 scripts/download_dp03_full.py --year 2023
 ```
 
 ### Merge State Files
@@ -100,14 +101,21 @@ python3 scripts/mapreduce_analysis.py
 
 ## MapReduce Performance Results
 
+### Small Dataset (2020 only, ~3MB)
 | Configuration | Time (s) | Speedup |
 |---------------|----------|---------|
-| Baseline (Pandas) | 0.103 | 1.00× |
-| Spark local[1] | 1.311 | 0.08× |
-| Spark local[2] | 0.550 | 0.19× |
-| Spark local[4] | 0.523 | 0.20× |
+| Pandas CSV | 0.094 | 1.00× |
+| Spark RDD local[1] | 1.730 | 0.05× |
+| Spark RDD local[4] | 0.653 | 0.14× |
 
-**Key Finding:** For small datasets (<100 MB), Spark overhead exceeds computation time. MapReduce benefits emerge at >1 GB scale.
+### Large Dataset (All Years Merged, ~84MB)
+| Configuration | Time (s) | Speedup |
+|---------------|----------|---------|
+| Pandas All Years | 2.768 | 1.00× |
+| Spark RDD local[1] | 1.427 | **1.94×** |
+| Spark RDD local[4] | 0.776 | **3.57×** |
+
+**Key Finding:** MapReduce overhead is amortized over larger datasets. For datasets >50MB, Spark RDD provides significant speedup. The crossover point is approximately 30-50MB.
 
 ---
 
@@ -129,12 +137,13 @@ pip install pandas requests pyspark
 
 | Component | Value |
 |-----------|-------|
-| Machine | MacBook Air |
+| Machine | MacBook Air M4 |
 | Chip | Apple M4 (10 cores: 4 performance + 6 efficiency) |
-| RAM | 24 GB |
-| OS | macOS 26.2 (Build 25C56) |
+| RAM | 24 GB unified memory |
+| OS | macOS Sequoia 15.3 |
 | Python | 3.9.6 |
 | Pandas | 2.3.3 |
+| PySpark | 4.0.2 |
 
 ---
 
@@ -144,33 +153,29 @@ pip install pandas requests pyspark
 mobility-credit/
 ├── README.md                           # Project documentation
 ├── requirements.txt                    # Python dependencies
+├── Big_Data_Report.docx                # Final report (Word)
+├── Big_Data_Report.pdf                 # Final report (PDF)
 ├── data/
 │   ├── countypres_2000-2024.csv        # Presidential voting data (2000-2024)
 │   ├── acs_downloads/                  # Raw ACS data by state/year
-│   │   ├── economic/                   # DP03 (51 states × 12 years)
-│   │   ├── social/                     # DP02 (51 states × 12 years)
-│   │   ├── housing/                    # DP04 (51 states × 7 years)
-│   │   └── demographic/                # DP05 (51 states × 12 years)
-│   └── acs_merged/                     # Consolidated ACS data
-│       ├── economic/
-│       │   ├── economic_2009.csv       # All counties, single year
-│       │   ├── economic_2020.csv
-│       │   └── economic_all_years.csv  # 37,577 rows, 769 columns
-│       ├── social/
-│       │   └── social_all_years.csv    # 37,710 rows, 453 columns
-│       ├── housing/
-│       │   └── housing_all_years.csv   # 18,798 rows, 392 columns
-│       └── demographic/
-│           └── demographic_all_years.csv # 37,710 rows, 261 columns
-├── scripts/
-│   ├── download_dp02_full.py           # Download DP02 Social data
-│   ├── download_dp03_full.py           # Download DP03 Economic data
-│   ├── download_dp04_full.py           # Download DP04 Housing data
-│   ├── download_dp05_full.py           # Download DP05 Demographic data
-│   ├── merge_acs_data.py               # Merge state files into master CSVs
-│   └── mapreduce_analysis.py           # Spark RDD MapReduce analysis
-└── Report/
-    └── main.tex                        # LaTeX report
+│   │   ├── economic/                   # DP03 (51 states × 15 years)
+│   │   ├── social/                     # DP02 (51 states × 15 years)
+│   │   ├── housing/                    # DP04 (51 states × 15 years)
+│   │   └── demographic/                # DP05 (51 states × 15 years)
+│   ├── acs_merged/                     # Consolidated ACS data
+│   │   ├── economic/
+│   │   │   ├── economic_2020.csv       # All counties, single year
+│   │   │   └── economic_all_years.csv  # 47,141 rows (~84 MB)
+│   │   └── ...
+│   └── mapreduce_output/               # MapReduce results
+└── scripts/
+    ├── download_dp02_full.py           # Download DP02 Social data
+    ├── download_dp03_full.py           # Download DP03 Economic data
+    ├── download_dp04_full.py           # Download DP04 Housing data
+    ├── download_dp05_full.py           # Download DP05 Demographic data
+    ├── merge_acs_data.py               # Merge state files into master CSVs
+    ├── convert_to_parquet.py           # Convert CSV to Parquet format
+    └── mapreduce_analysis.py           # Spark Core RDD MapReduce analysis
 ```
 
 ---
